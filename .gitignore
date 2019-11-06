@@ -1,0 +1,6 @@
+*.DS_STORE
+.vscode/*
+floo/libs/mac/*
+test/embedded.out.dSYM/*
+test/embedded.out
+test/data/*
