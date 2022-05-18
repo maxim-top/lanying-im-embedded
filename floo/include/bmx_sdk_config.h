@@ -61,6 +61,30 @@ public:
                bool deliveryAck = false);
 
   /**
+   * @brief 构造函数
+   * @param type 客户端类型
+   * @param vsn 客户端OS版本
+   * @param dataDir 聊天数据存储路径
+   * @param cacheDir 缓存数据存储路径
+   * @param SDKVersion SDK版本
+   * @param pushCertName Push证书名字
+   * @param userAgent 用户代理信息
+   * @param appId 用户的appId
+   * @param appSecret 用户的appSecret（对于使用推送的用户，必须同时设置appId和appSecret）
+   * @param deliveryAck 是否发送消息送达回执
+   **/
+  BMXSDKConfig(BMXClientType type,
+               const std::string& vsn,
+               const std::string &dataDir,
+               const std::string &cacheDir,
+               const std::string &SDKVersion,
+               const std::string &pushCertName,
+               const std::string &userAgent,
+               const std::string &appId,
+               const std::string &appSecret,
+               bool deliveryAck = false);
+
+  /**
    * @brief 析构函数
    **/
   virtual ~BMXSDKConfig();
@@ -102,10 +126,28 @@ public:
   const std::string& getPushCertName();
 
   /**
+   * @brief 设置Push证书名字
+   * @return std::string
+   **/
+  void setPushCertName(const std::string&);
+
+  /**
    * @brief 获取用户代理信息
    * @return std::string
    **/
   const std::string& getUserAgent();
+
+  /**
+   * @brief 发送消息的config中是否携带
+   * @return bool
+   **/
+  bool carryUsernameInMessage();
+
+  /**
+   * @brief 设置发送消息的config中是否携带用户名
+   * @param bool 设置是否在送消息的config中携带用户名
+   **/
+  void setCarryUsernameInMessage(bool);
 
   /**
    * @brief 是否发送消息送达回执
@@ -174,10 +216,22 @@ public:
   const std::string& getDeviceUuid();
 
   /**
-   * @brief 设置设备的唯一识别码，在app卸载之前应该始终保持一致，app删除后再次安装时可以产生不同的设备识别码。用于本地数据库加密。
+   * @brief 设置设备的唯一识别码，在app卸载之前应该始终保持一致，app删除后再次安装时可以产生不同的设备识别码。
    * @param uuid 设备的唯一识别码。
    **/
   void setDeviceUuid(const std::string &uuid);
+
+  /**
+   * @brief 获取设备的本地数据库加密密钥。
+   * @return std::string
+   **/
+  const std::string& getDBCryptoKey();
+
+  /**
+   * @brief 设置本地数据库的加密密钥，在app卸载之前应该始终保持一直，app删除后再次安装时可以产生不同的密钥。用于本地数据库加密。
+   * @param cryptoKey 本地数据库的加密密钥。
+   **/
+  void setDBCryptoKey(const std::string &cryptoKey);
 
   /**
    * @brief 获取https请求是否验证服务器端证书。
@@ -227,6 +281,54 @@ public:
    **/
   void setAppID(const std::string &appID);
 
+  /**
+   * @brief 获取用户的appSecret。
+   * @return std::string
+   **/
+  std::string getAppSecret();
+
+  /**
+   * @brief 设置用户的appSecret。
+   * @param appID 用户的appSecret
+   **/
+  void setAppSecret(const std::string &appSecret);
+
+  /**
+   * @brief 获取用户的推送提供商类型。
+   * @return BMXPushProviderType
+   **/
+  BMXPushProviderType getPushProviderType();
+
+  /**
+   * @brief 设置用户的推送提供商类型。
+   * @param type 用户的推送提供商类型
+   **/
+  void setPushProviderType(BMXPushProviderType type);
+
+  /**
+   * @brief 获取用户的推送环境类型。
+   * @return BMXPushEnvironmentType
+   **/
+  BMXPushEnvironmentType getPushEnvironmentType();
+
+  /**
+   * @brief 设置用户的推送环境类型。
+   * @param type 用户的推送环境类型
+   **/
+  void setEnvironmentType(BMXPushEnvironmentType type);
+
+  /**
+   * @brief 获取调试log接收着账号(仅用于SDK调试，接收客户端log日志使用)
+   * @return int64_t
+   **/
+  int64_t getDebugLogReceiverId();
+
+  /**
+   * @brief 设置调试log接收账号(仅用于SDK调试，接收客户端log日志使用)
+   * @param uid 调试log接收者id
+   **/
+  void setDebugLogReceiverId(int64_t uid);
+
 private:
   std::recursive_mutex mMutex;
   std::string mDataDir;
@@ -238,14 +340,20 @@ private:
   bool mConsoleOutput;
   std::string mPushCertName;
   std::string mUserAgent;
+  bool mCarryUsername;
   bool mEnableDeliveryAck;
   HostConfig mHostConfig;
   bool mLoadAllServerConversations;
   std::string mDeviceUuid;
+  std::string mDBCryptoKey;
   bool mVerifyCertificate;
   bool mEnableDNS;
   std::string mDNSAddress;
   std::string mAppID;
+  std::string mAppSecret;
+  BMXPushProviderType mPushProviderType;
+  BMXPushEnvironmentType mPushEnvironmentType;
+  int64_t mLogReceiverId;
 };
 
 typedef std::shared_ptr<BMXSDKConfig> BMXSDKConfigPtr;

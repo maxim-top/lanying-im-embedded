@@ -17,8 +17,11 @@
 #include "bmx_message.h"
 #include "bmx_conversation.h"
 #include "bmx_error.h"
+#include "bmx_chat_service.h"
 
 namespace floo {
+
+class BMXChatService;
 
 /**
  * @brief 聊天监听者
@@ -26,9 +29,18 @@ namespace floo {
 class EXPORT_API BMXChatServiceListener {
 public:
   /**
+   * @brief 构造函数
+   **/
+  BMXChatServiceListener() : mService(nullptr) {}
+
+  /**
    * @brief 析构函数
    **/
-  virtual ~BMXChatServiceListener() {}
+  virtual ~BMXChatServiceListener() {
+    if (mService != nullptr) {
+      mService->removeChatListener(this);
+    }
+  }
 
   /**
    * @brief 消息发送状态发生变化
@@ -56,6 +68,12 @@ public:
    * @param list 接收到的消息列表
    **/
   virtual void onReceive(const BMXMessageList& list)  {}
+
+  /**
+   * @brief 收到命令消息
+   * @param list 接收到的消息列表
+   **/
+  virtual void onReceiveCommandMessages(const BMXMessageList& list) {}
 
   /**
    * @brief 收到系统通知消息
@@ -100,12 +118,26 @@ public:
   virtual void onReceiveDeleteMessages(const BMXMessageList& list) {}
 
   /**
+   * @brief 收到音频/视频消息已播放回执
+   * @param list 接收到的音频/视频消息已播放回执消息列表
+   **/
+  virtual void onReceivePlayAcks(const BMXMessageList& list)  {}
+
+  /**
    * @brief 附件下载状态发生变化
    * @param msg 发生下载状态变化的消息
    * @param error 状态错误码
    * @param percent 附件下载的进度
    **/
   virtual void onAttachmentStatusChanged(BMXMessagePtr msg, BMXErrorCode error, int percent)  {}
+
+  /**
+   * @brief 附件下载状态发生变化
+   * @param msgId 发生下载状态变化的消息Id
+   * @param error 状态错误码
+   * @param percent 附件下载的进度
+   **/
+  virtual void onAttachmentDownloadByUrlStatusChanged(int64_t msgId, BMXErrorCode error, int percent)  {}
 
   /**
    * @brief 拉取历史消息
@@ -131,6 +163,24 @@ public:
    * @param error 状态错误码
    **/
   virtual void onConversationDelete(int64_t conversationId, BMXErrorCode error) {}
+
+  /**
+   * @brief 更新总未读数
+   * @param unreadCount 本地全部会话未读总数
+   **/
+  virtual void onTotalUnreadCountChanged(int unreadCount) {}
+
+public:
+  /**
+   * @brief 注册BMXChatServiceListener绑定到的BMXChatService（SDK内部自动注册）
+   * @param service BMXChatService
+   **/
+  void registerChatService(BMXChatService* service) {
+    mService = service;
+  }
+
+protected:
+  BMXChatService* mService;
 };
 
 }

@@ -68,7 +68,8 @@ public:
     int mSize;
     int64_t mCreateTime;
     int64_t mUpdateTime;
-    std::string mUrl;
+    std::string mRatelUrl;  //群共享文件Ratel服务器Url
+    std::string mUrl;       //群共享文件服务器Url
     std::string mPath;
     std::string mDisplayName;
     std::string mType;
@@ -168,10 +169,10 @@ public:
    * @brief 群信息修改模式
    **/
   enum class ModifyMode {
+    /// 只有管理员可以
+    AdminOnly,
     /// 所有群成员都可以修改
     Open,
-    /// 只有管理员可以
-    AdminOnly
   };
 
   /**
@@ -190,10 +191,10 @@ public:
    * @brief 邀请入群模式
    **/
   enum class InviteMode {
-    /// 所有人都可以邀请他人进群
-    Open,
     /// 只有管理员可以邀请他人进群
-    AdminOnly
+    AdminOnly,
+    /// 所有人都可以邀请他人进群
+    Open
   };
 
   /**
@@ -227,7 +228,9 @@ public:
     /// 是否开启群消息已读功能
     ReadAckMode,
     /// 新群成员是否可见群历史聊天记录
-    HistoryVisibleMode
+    HistoryVisibleMode,
+    /// 群组全员禁言到期时间
+    BanExpireTime,
   };
 
   /**
@@ -263,6 +266,15 @@ public:
     NotGroupMember
   };
 
+  enum class GroupType {
+    /// 私有群组
+    Private,
+    /// 公开群组(现在暂时没有开放次类型群组)
+    Public,
+    /// 聊天室
+    Chatroom
+  };
+
   /**
    * @brief 析构函数
    **/
@@ -273,6 +285,12 @@ public:
    * @return int64_t
    **/
   virtual int64_t groupId() = 0;
+
+  /**
+   * @brief 当前群组的群组类型（Private 私有群组，Public 公开群组，Chatroom 聊天室）
+   * @return GroupType
+   **/
+  virtual GroupType groupType() = 0;
 
   /**
    * @brief 在群里的昵称
@@ -293,7 +311,13 @@ public:
   virtual const std::string& description() = 0;
 
   /**
-   * @brief 群头像
+   * @brief 群头像Ratel服务器Url
+   * @return std::string
+   **/
+  virtual std::string avatarRatelUrl() = 0;
+
+  /**
+   * @brief 群头像服务器Url
    * @return std::string
    **/
   virtual std::string avatarUrl() = 0;
@@ -303,6 +327,12 @@ public:
    * @return std::string
    **/
   virtual std::string avatarPath() = 0;
+
+  /**
+   * @brief 群头像缩略图服务器Url
+   * @return std::string
+   **/
+  virtual std::string avatarThumbnailUrl() = 0;
 
   /**
    * @brief 群头像缩略图下载后的本地路径
@@ -430,6 +460,12 @@ public:
    * @return MemberRoleType
    **/
   virtual MemberRoleType roleType() = 0;
+
+  /**
+   * @brief 群组全员禁言到期时间
+   * @return int64_t
+   **/
+  virtual int64_t banExpireTime() = 0;
 
 protected:
   BMXGroup() {}

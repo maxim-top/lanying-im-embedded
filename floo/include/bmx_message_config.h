@@ -30,6 +30,14 @@ static const std::string kPushMessage = "pushMessage";                  // strin
 static const std::string kSenderNickname = "senderNickname";            // string
 static const std::string kGroupAck = "groupAck";                        // bool
 static const std::string kGroupMemberList = "groupMemberList";          // vector<int64_t>
+static const std::string kIOSConfig = "ios";                            // string
+static const std::string kAndroidConfig = "android";                    // string
+static const std::string kPushShowBeginTime = "show_begin_time";        // int
+static const std::string kPushShowEndTime = "show_end_time";            // int
+static const std::string kPushTitle = "title";                          // string
+static const std::string kSilence = "silence";                          // bool
+static const std::string kBadge = "badge";                              // int
+static const std::string kUsername = "username";                        // string
 
 class BMXMessageConfig;
 typedef std::shared_ptr<BMXMessageConfig> BMXMessageConfigPtr;
@@ -39,6 +47,17 @@ typedef std::shared_ptr<BMXMessageConfig> BMXMessageConfigPtr;
  **/
 class EXPORT_API BMXMessageConfig : public BMXBaseObject {
 public:
+
+  /**
+   * @brief 当前读取的Badge数字的操作类型
+   **/
+  enum class BadgeCountType{
+    /// 读取Badge计数的操作类型为增加或减少。正数为增加负数为减少
+    Change,
+    /// 设置Badge的计数为当前的计数值
+    Set
+  };
+
   virtual ~BMXMessageConfig() {}
 
   /**
@@ -91,7 +110,7 @@ public:
 
   /**
    * @brief 设置发送者昵称
-   * @param pushMessage
+   * @param senderNickname
    **/
   void setSenderNickname(const std::string &senderNickname);
 
@@ -129,7 +148,95 @@ public:
    **/
   void clearGroupMemberList();
 
+    /**
+   * @brief 设置IOS系统配置信息
+   * @param iosConfig
+   **/
+  void setIOSConfig(const std::string& iosConfig);
 
+  /**
+   * @brief 获取IOS系统配置信息
+   * @return std::string
+   **/
+  std::string getIOSConfig();
+
+  /**
+   * @brief 设置Android系统配置信息
+   * @param androidConfig
+   **/
+  void setAndroidConfig(const std::string& androidConfig);
+
+  /**
+   * @brief 获取Android系统配置信息
+   * @return std::string
+   **/
+  std::string getAndroidConfig();
+
+  /**
+   * @brief 设置推送显示开始时间
+   * @param beginTime
+   **/
+  void setPushShowBeginTime(int beginTime);
+
+  /**
+   * @brief 获取推送显示开始时间
+   * @return int
+   **/
+  int getPushShowBeginTime();
+
+  /**
+   * @brief 设置推送显示结束时间
+   * @param endTime
+   **/
+  void setPushShowEndTime(int endTime);
+
+  /**
+   * @brief 获取推送显示结束时间
+   * @return int
+   **/
+  int getPushShowEndTime();
+
+  /**
+   * @brief 设置推送标题
+   * @param pushTitle
+   **/
+  void setPushTitle(const std::string& pushTitle);
+
+  /**
+   * @brief 获取推送标题
+   * @return std::string
+   **/
+  std::string getPushTitle();
+
+  /**
+   * @brief 获取当前的推送消息是否是静默消息
+   * @return bool
+   **/
+  bool isSilence();
+
+  /**
+   * @brief 获取当前的推送消息中badge计数
+   * @return BadgeCountType
+   **/
+  BadgeCountType getBadgeCountType();
+
+  /**
+   * @brief 获取当前的推送消息中badge计数
+   * @return int
+   **/
+  int getBadgeCount(int count);
+
+  /**
+  * @brief 设置用户名
+  * @param username
+  **/
+  void setUsername(const std::string& username);
+
+  /**
+  * @brief 获得用户名
+  * @return std::string
+  **/
+  std::string getUsername();
 
   /**
    * @brief 序列化操作
@@ -143,8 +250,8 @@ public:
   friend BMXMessageConfigPtr decodeBMXMessageConfig(const std::string& config);
 
 private:
-  
-  BMXMessageConfig() : mMentionAll(false) {}
+
+  BMXMessageConfig() : mMentionAll(false), mIsSilence(false), mBadgeType(BMXMessageConfig::BadgeCountType::Change), mBadgeCount(0), mUsername("") {}
 
   std::recursive_mutex mMutex;
   bool mMentionAll;
@@ -153,6 +260,15 @@ private:
   std::string mPushMessage;
   std::string mSenderNickname;
   std::vector<int64_t> mGroupMemberList;
+  std::string mIOSConfig;
+  std::string mAndroidConfig;
+  int mPushShowBeginTime;
+  int mPushShowEndTime;
+  std::string mPushTitle;
+  bool mIsSilence;
+  BadgeCountType mBadgeType;
+  int mBadgeCount;
+  std::string mUsername;
 };
 
 std::string encodeBMXMessageConfig(BMXMessageConfigPtr);

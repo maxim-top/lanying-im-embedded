@@ -24,11 +24,13 @@ maximtest2       1      6597271134656
 */
 
 void initSDK() {
-  std::string path = "/Users/jiangwei/Code/bmx/embedded/test/data";
-  config = BMXSDKConfigPtr(new BMXSDKConfig(BMXClientType::macOS, "10", path, path, "2.0", "1234", "userAgent"));
+  std::string path = "/home/jwfan/code/bmx/lanying-im-embedded/test/data";
+  config = BMXSDKConfigPtr(new BMXSDKConfig(BMXClientType::Linux, "", path, path, "3.0", "1234", "userAgent"));
   config->setAppID("welovemaxim");
+  config->setDBCryptoKey("testkey");
   config->setDeviceUuid("b81f412e-fcb2-44fb-9f44-5e8e5b1e809e");
   config->setConsoleOutput(false);
+  config->setLogLevel(BMXLogLevel::Debug);
   client = BMXClient::create(config);
 
   chatListener = new ChatListener();

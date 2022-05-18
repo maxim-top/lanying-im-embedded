@@ -36,13 +36,14 @@ public:
    **/
   struct CreateGroupOptions {
     CreateGroupOptions() {}
-    CreateGroupOptions(const std::string& name, const std::string& description, bool isPublic = false) :
-      mName(name), mDescription(description), mIsPublic(isPublic) {
+    CreateGroupOptions(const std::string& name, const std::string& description, bool isPublic = false, bool isChatroom = false) :
+      mName(name), mDescription(description), mIsPublic(isPublic), mIsChatroom(isChatroom) {
     }
 
     std::string mName;                          // 群组名称
     std::string mDescription;                   // 群组描述
     bool mIsPublic;                             // 是否公开群
+    bool mIsChatroom;                           // 是否创建聊天室
     std::string mMessage;                       // 建群时成员收到的邀请信息
     std::vector<int64_t> mMembers;              // 建群时添加的成员
   };
@@ -57,9 +58,28 @@ public:
    * @param forceRefresh 设置为true强制从服务器获取，本地获取失败的情况sdk会自动从服务器获取
    * @return BMXErrorCode
    **/
+  virtual BMXErrorCode get(BMXGroupList& list, bool forceRefresh) = 0;
+
+  /**
+   * Deprecated. use get instead.
+   * @brief 获取群组列表，如果设置了forceRefresh则从服务器拉取
+   * @param list 群组id列表，传入空列表函数返回后从此处获取返回的群组id列表
+   * @param forceRefresh 设置为true强制从服务器获取，本地获取失败的情况sdk会自动从服务器获取
+   * @return BMXErrorCode
+   **/
   virtual BMXErrorCode search(BMXGroupList& list, bool forceRefresh) = 0;
 
   /**
+   * @brief 通过传入群组的id列表获取群组信息列表，如果设置了forceRefresh则从服务器拉取
+   * @param groupIdList 群组id列表
+   * @param list 群组详细信息列表，传入空列表函数返回后从此处获取返回的群组详细信息列表
+   * @param forceRefresh 设置为true强制从服务器获取，本地获取失败的情况sdk会自动从服务器获取
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode fetchGroupsByIdList(const std::vector<int64_t>& groupIdList, BMXGroupList& list, bool forceRefresh) = 0;
+
+  /**
+   * Deprecated. use fetchGroupsByIdList instead.
    * @brief 获取传入群组id的群组信息列表，如果设置了forceRefresh则从服务器拉取
    * @param groupIdList 群组id列表
    * @param list 群组详细信息列表，传入空列表函数返回后从此处获取返回的群组详细信息列表
@@ -69,6 +89,16 @@ public:
   virtual BMXErrorCode search(const std::vector<int64_t>& groupIdList, BMXGroupList& list, bool forceRefresh) = 0;
 
   /**
+   * @brief 通过群组id获取群信息，如果设置了forceRefresh则从服务器拉取
+   * @param groupId 要搜索的群组id
+   * @param group 搜索返回的群组信息，传入指向为空的shared_ptr对象函数执行后从此获取返回结果
+   * @param forceRefresh 设置为true强制从服务器获取，本地获取失败的情况sdk会自动从服务器获取
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode fetchGroupById(int64_t groupId, BMXGroupPtr& group, bool forceRefresh) = 0;
+
+  /**
+   * Deprecated. use fetchGroupById instead.
    * @brief 获取群信息，如果设置了forceRefresh则从服务器拉取
    * @param groupId 要搜索的群组id
    * @param group 搜索返回的群组信息，传入指向为空的shared_ptr对象函数执行后从此获取返回结果
@@ -78,6 +108,15 @@ public:
   virtual BMXErrorCode search(int64_t groupId, BMXGroupPtr& group, bool forceRefresh) = 0;
 
   /**
+   * @brief 通过群名称查询本地群信息，从本地数据库中通过群名称查询获取群组
+   * @param list 搜索结果返回的群列表信息
+   * @param name 查询的群名称关键字
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode fetchLocalGroupsByName(BMXGroupList& list, const std::string& name) = 0;
+
+  /**
+   * Deprecated. use fetchLocalGroupsByName instead.
    * @brief 通过群名称查询本地群信息，从本地数据库中通过群名称查询获取群组
    * @param list 搜索结果返回的群列表信息
    * @param name 查询的群名称关键字
@@ -260,12 +299,27 @@ public:
   virtual BMXErrorCode banMembers(BMXGroupPtr group, const std::vector<int64_t>& members, int64_t duration, const std::string& reason = "") = 0;
 
   /**
+   * @brief 全员禁言，当前服务器时间加上禁言时长后计算出全员禁言到期时间（只有管理和群主可以发言）
+   * @param group 进行操作的群组
+   * @param duration 禁言时长(分钟)
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode banGroup(BMXGroupPtr group, int64_t duration) = 0;
+
+  /**
    * @brief 解除禁言
    * @param group 进行操作的群组
    * @param members 被解除禁言的群成员id列表
    * @return BMXErrorCode
    **/
   virtual BMXErrorCode unbanMembers(BMXGroupPtr group, const std::vector<int64_t>& members) = 0;
+
+  /**
+   * @brief 全员解除禁言
+   * @param group 进行操作的群组
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode unbanGroup(BMXGroupPtr group) = 0;
 
   /**
    * @brief 分页获取禁言列表
@@ -425,7 +479,7 @@ public:
   virtual BMXErrorCode editAnnouncement(BMXGroupPtr group, const std::string& title, const std::string& content) = 0;
 
   /**
-   * @brief 获取群公告列表
+   * @brief 删除群公告
    * @param group 进行操作的群组
    * @param announcementId 删除的群公告id
    * @return BMXErrorCode

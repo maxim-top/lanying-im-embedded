@@ -81,6 +81,17 @@ public:
   virtual void ackMessage(BMXMessagePtr msg) = 0;
 
   /**
+   * 发送送达回执
+   **/
+  virtual void ackMessageDelivered(BMXMessagePtr msg) = 0;
+
+  /**
+   * @brief 发送音频/视频消息已播放回执
+   * @param msg 需要发送已读回执的消息
+   **/
+  virtual void ackPlayMessage(BMXMessagePtr msg) = 0;
+
+  /**
    * @brief 标记此消息为未读，该消息同步到当前用户的所有设备
    * @param msg 需要发送消息已读取消的消息
    **/
@@ -114,16 +125,27 @@ public:
   virtual void downloadAttachment(BMXMessagePtr msg) = 0;
 
   /**
-   * @brief 下载附件，下载状态变化和进度通过listener通知
-   * @param msg 需要下载附件的消息
+   * 下载附件，下载状态变化和进度通过listener通知
+   **/
+  virtual void downloadAttachmentByUrl(int64_t msgId, const std::string &url, const std::string &path) = 0;
+
+  /**
+   * @brief 取消上传附件
+   * @param msg 需要取消上传附件的消息
    **/
   virtual void cancelUploadAttachment(BMXMessagePtr msg) = 0;
 
   /**
-   * @brief 下载附件，下载状态变化和进度通过listener通知
-   * @param msg 需要下载附件的消息
+   * @brief 取消下载附件
+   * @param msg 需要取消下载附件的消息
    **/
   virtual void cancelDownloadAttachment(BMXMessagePtr msg) = 0;
+
+  /**
+     * @brief 上传或下载中的文件数
+     * @return 文件数
+   **/
+  virtual int transferingNum() = 0;
 
   /**
    * @brief 插入消息
@@ -175,6 +197,12 @@ public:
   virtual BMXConversationList getAllConversations() = 0;
 
   /**
+   * @brief 获取所有会话的全部未读数（标记为屏蔽的个人和群组的未读数不统计在内）
+   * @return int
+   **/
+  virtual int getAllConversationsUnreadCount() = 0;
+
+  /**
    * @brief 拉取历史消息
    * @param conversation 需要拉取历史消息的会话
    * @param refMsgId 拉取会话消息的起始消息Id
@@ -185,6 +213,18 @@ public:
   virtual BMXErrorCode retrieveHistoryMessages(BMXConversationPtr conversation, int64_t refMsgId, size_t size, BMXMessageList& result) = 0;
 
   /**
+   * @brief 使用关键字搜索消息
+   * @param keywords 搜索的关键字
+   * @param refTime 搜索消息的起始时间
+   * @param size 搜索的最大消息条数
+   * @param result 搜索到的消息结果列表，外部初始化传入空列表。
+   * @param Direction 消息搜索方向，默认（Direction::Up）是从更早的消息中搜索
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode searchMessagesByKeyWords(const std::string& keywords, int64_t refTime, size_t size, std::vector<BMXMessageList>& result, BMXConversation::Direction = BMXConversation::Direction::Up) = 0;
+
+  /**
+   * Deprecated. use searchMessagesByKeyWords instead.
    * @brief 搜索消息
    * @param keywords 搜索的关键字
    * @param refTime 搜索消息的起始时间
@@ -210,6 +250,22 @@ public:
    * @return BMXErrorCode
    **/
   virtual BMXErrorCode getGroupAckMessageUnreadUserIdList(BMXMessagePtr msg, std::vector<int64_t>& groupMemberIdList) = 0;
+
+  /**
+   * @brief 获取发送的群组音频/视频消息已播放用户id列表（仅用于音频/视频消息）
+   * @param msg 需要获取已播放用户id列表的消息
+   * @param groupMemberIdList 对该条消息已播放的用户id列表，初始传入为空列表
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode getGroupPlayAckMessageUserIdList(BMXMessagePtr msg, std::vector<int64_t>& groupMemberIdList) = 0;
+
+  /**
+   * @brief 获取发送的群组音频/视频消息未播放用户id列表（仅用于音频/视频消息）
+   * @param msg 需要获取未播放用户id列表的消息
+   * @param groupMemberIdList 对该条消息未播放的用户id列表，初始传入为空列表
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode getGroupUnPlayAckMessageUserIdList(BMXMessagePtr msg, std::vector<int64_t>& groupMemberIdList) = 0;
 
   /**
    * @brief 添加聊天监听者

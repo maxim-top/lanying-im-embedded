@@ -689,6 +689,7 @@ void processOperation() {
     }
     case USER_SET_MOBILE_PHONE:
     {
+      /*
       getParams(params);
       if (params.size() >= 1 && client->signInStatus() == BMXSignInStatus::SignIn) {
         BMXErrorCode errorCode = client->getUserService().setMobilePhone(params[0]);
@@ -701,6 +702,7 @@ void processOperation() {
       } else {
         mvwaddstr(operWindow, 1, 1, "user not signIn or param invalid!");
       }
+      */
       break;
     }
     case ROSTER_APPLY:

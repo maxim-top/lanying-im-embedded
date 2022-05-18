@@ -181,6 +181,18 @@ public:
   void setIsPlayed(bool);
 
   /**
+   * @brief 对于发送方表示是否收到了已播放回执，对于接收方表示是否发送了已播放回执
+   * @return bool
+   */
+  bool isPlayAcked();
+
+
+  /**
+   * @brief 设置已播放回执
+   */
+  void setIsPlayAcked(bool);
+
+  /**
    * @brief 是否接收的消息
    * @return bool
    */
@@ -290,7 +302,7 @@ public:
 
   /**
    * @brief 设置消息的发送者显示名称
-   * @param content 消息文本内容
+   * @param senderName 消息文本内容
    */
   void setSenderName(const std::string& senderName);
 
@@ -324,6 +336,60 @@ public:
    */
   bool groupAckReadAll();
 
+  /**
+   * @brief 群消息已播放AckCount数目（仅用于音频/视频附件消息）
+   * @return int
+   */
+  int groupPlayAckCount();
+
+  /**
+   * @brief 设置消息已播放groupAckCount数目(SDK 内部调用接口，上层不应该调用)（仅用于音频/视频附件消息）
+   * @param count 设置群消息已读数目
+   */
+  void setGroupPlayAckCount(int count);
+
+  /**
+   * @brief 群消息未播放AckCount数目（仅用于音频/视频附件消息）
+   * @return int
+   */
+  int groupPlayAckUnreadCount();
+
+  /**
+   * @brief 设置消息未播放groupAckCount数目(SDK 内部调用接口，上层不应该调用)（仅用于音频/视频附件消息）
+   * @param count 设置群消息未播放数目
+   */
+  void setGroupPlayAckUnreadCount(int count);
+
+  /**
+   * @brief 群消息是否全部已播放
+   * @return bool
+   */
+  bool groupPlayAckReadAll();
+
+  /**
+   * @brief 设置消息的扩散优先级，默认为0。0表示扩散，数字越小扩散的越多。
+   * @brief 取值范围0-10。普通人在聊天室发送的消息级别默认为5，可以丢弃。管理员默认为0不会丢弃。其它值可以根据业务自行设置。
+   * @param priority 优先级
+   */
+  void setPriority(int priority);
+
+  /**
+   * @brief 消息的扩散优先级
+   * @return int
+   */
+  int priority();
+
+  /**
+   * @brief 设置消息是否为推送消息。
+   */
+  void setPushMessageMode(bool);
+
+  /**
+   * @brief 消息是否是推送消息
+   * @return bool
+   */
+  bool isPushMessage();
+
 public:
   /**
    * @brief 创建发送文本消息
@@ -344,6 +410,16 @@ public:
    * @param attachment 附件
    **/
   static BMXMessagePtr createMessage(int64_t from, int64_t to, MessageType type, int64_t conversationId, BMXMessageAttachmentPtr attachment);
+
+  /**
+   * @brief 创建发送命令消息(命令消息通过content字段或者extension字段存放命令信息)
+   * @param from 消息发送者
+   * @param to 消息接收者
+   * @param type 消息类型
+   * @param conversationId 会话id
+   * @param content 消息内容
+   **/
+  static BMXMessagePtr createCommandMessage(int64_t from, int64_t to, MessageType type, int64_t conversationId, const std::string& content);
 
   /**
    * @brief 创建收到的消息
@@ -368,6 +444,18 @@ public:
    * @param serverTimestamp 服务器时间戳
    **/
   static BMXMessagePtr createMessage(int64_t msgId, int64_t from, int64_t to, MessageType type, int64_t conversationId, BMXMessageAttachmentPtr attachment, int64_t serverTimestamp);
+
+  /**
+   * @brief 创建收到的命令消息(命令消息通过content字段或者extension字段存放命令信息)
+   * @param msgId 消息id
+   * @param from 消息发送者
+   * @param to 消息接收者
+   * @param type 消息类型
+   * @param conversationId 会话id
+   * @param content 消息内容
+   * @param serverTimestamp 服务器时间戳
+   **/
+  static BMXMessagePtr createCommandMessage(int64_t msgId, int64_t from, int64_t to, MessageType type, int64_t conversationId, const std::string& content, int64_t serverTimestamp);
 
   /**
    * @brief 创建转发消息
@@ -396,6 +484,7 @@ private:
   int64_t mClientTimestamp;
   int64_t mServerTimestamp;
   bool mIsPlayed;
+  bool mIsPlayedAcked;
   bool mIsReceiveMsg;
   bool mIsRead;
   bool mIsReadAcked;
@@ -410,6 +499,10 @@ private:
   bool mIsGroupAck;
   int mGroupAckCount;
   int mGroupAckUnreadCount;
+  int mGroupPlayAckCount;
+  int mGroupPlayAckUnreadCount;
+  int mPriority;
+  bool mIsPushMessage;
   std::recursive_mutex mMutex;
 };
 

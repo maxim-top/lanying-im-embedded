@@ -84,13 +84,6 @@ public:
     virtual BMXErrorCode downloadAvatar(BMXUserProfilePtr profile, bool thumbnail = true, Callback callback = [](int){}) = 0;
 
   /**
-   * @brief 设置电话号码
-   * @param phone 电话号码
-   * @return BMXErrorCode
-   **/
-  virtual BMXErrorCode setMobilePhone(const std::string& phone) = 0;
-
-  /**
    * @brief 设置公开扩展信息
    * @param publicInfo 公开扩展信息
    * @return BMXErrorCode
@@ -138,6 +131,13 @@ public:
    * @return BMXErrorCode
    **/
   virtual BMXErrorCode setPushNickname(const std::string& nickname) = 0;
+
+  /**
+   * @brief 
+   * @param nickname 推送昵称
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode setPushAlias(const std::string& alias, const std::string& bmxPushToken) = 0;
 
   /**
    * @brief 设置收到新消息是否声音提醒

@@ -72,6 +72,16 @@ public:
   virtual BMXErrorCode get(std::vector<int64_t>& list, bool forceRefresh) = 0;
 
   /**
+   * @brief 通过联系人id搜索用户
+   * @param rosterId 搜索的好友id
+   * @param forceRefresh 为true强制从服务器获取，为false情况下查询结果为空时自动从服务器获取。
+   * @param item 查询返回的用户的信息，传入指向为空的shared_ptr对象函数执行后会自动赋值。
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode fetchRosterById(int64_t rosterId, bool forceRefresh, BMXRosterItemPtr& item) = 0;
+
+  /**
+   * Deprecated. use fetchRosterById instead.
    * @brief 搜索用户
    * @param rosterId 搜索的好友id
    * @param forceRefresh 为true强制从服务器获取，为false情况下查询结果为空时自动从服务器获取。
@@ -81,6 +91,16 @@ public:
   virtual BMXErrorCode search(int64_t rosterId, bool forceRefresh, BMXRosterItemPtr& item) = 0;
   
   /**
+   * @brief 通过用户名搜索用户
+   * @param name 搜索的用户名
+   * @param forceRefresh 为true强制从服务器获取，为false情况下查询结果为空时自动从服务器获取。
+   * @param item 查询返回的用户的信息，传入指向为空的shared_ptr对象函数执行后会自动赋值。
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode fetchRosterByName(const std::string& name, bool forceRefresh, BMXRosterItemPtr& item) = 0;
+  
+  /**
+   * Deprecated. use fetchRosterByName instead.
    * @brief 搜索用户
    * @param name 搜索的用户名
    * @param forceRefresh 为true强制从服务器获取，为false情况下查询结果为空时自动从服务器获取。
@@ -88,8 +108,18 @@ public:
    * @return BMXErrorCode
    **/
   virtual BMXErrorCode search(const std::string& name, bool forceRefresh, BMXRosterItemPtr& item) = 0;
-  
+
   /**
+   * @brief 通过联系人id列表批量搜索用户
+   * @param rosterIdList 需要搜索的用户id列表
+   * @param list 返回的好友信息列表，传入空列表函数返回后从此处获取返回的好友信息列表
+   * @param forceRefresh 是否强制从服务器获取，为true则强制从服务器获取
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode fetchRostersByIdList(const std::vector<int64_t>& rosterIdList, BMXRosterList& list, bool forceRefresh) = 0;
+
+  /**
+   * Deprecated. use fetchRostersByIdList instead.
    * @brief 批量搜索用户
    * @param rosterIdList 需要搜索的用户id列表
    * @param list 返回的好友信息列表，传入空列表函数返回后从此处获取返回的好友信息列表

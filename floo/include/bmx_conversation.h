@@ -86,6 +86,12 @@ public:
   virtual int32_t messageCount() = 0;
 
   /**
+   * @brief 是否提醒用户消息,不提醒的情况下会话总未读数不会统计该会话计数。
+   * @return bool
+   **/
+  virtual bool isMuteNotification() = 0;
+
+  /**
    * @brief 扩展信息
    * @return JSON(std::string)
    **/
@@ -134,6 +140,13 @@ public:
   virtual BMXErrorCode setAllMessagesRead() = 0;
 
   /**
+   * @brief 更新一条数据库存储消息的扩展字段信息
+   * @param msg 需要更改扩展信息的消息此时msg部分已经更新扩展字椴信息
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode updateMessageExtension(BMXMessagePtr msg) = 0;
+
+  /**
    * @brief 插入一条消息
    * @param msg 插入的消息
    * @return BMXErrorCode
@@ -172,9 +185,33 @@ public:
    * @param Direction 消息搜索方向，默认（Direction::Up）是从更早的消息中搜索
    * @return BMXErrorCode
    **/
+  virtual BMXErrorCode searchMessagesByKeyWords(const std::string& keywords, int64_t refTime, size_t size, BMXMessageList& result, Direction = Direction::Up) = 0;
+
+  /**
+   * Deprecated. use searchMessagesByKeyWords instead.
+   * @brief 搜索消息，如果不指定则从最新消息开始
+   * @param keywords 搜索消息的关键字
+   * @param refTime 搜索消息的起始时间
+   * @param size 最大加载消息条数
+   * @param result 搜索到的消息结果列表
+   * @param Direction 消息搜索方向，默认（Direction::Up）是从更早的消息中搜索
+   * @return BMXErrorCode
+   **/
   virtual BMXErrorCode searchMessages(const std::string& keywords, int64_t refTime, size_t size, BMXMessageList& result, Direction = Direction::Up) = 0;
 
   /**
+   * @brief 按照类型搜索消息，如果不指定则从最新消息开始
+   * @param type 搜索消息的类型
+   * @param refTime 搜索消息的起始时间
+   * @param size 最大加载消息条数
+   * @param result 搜索到的消息结果列表
+   * @param Direction 消息搜索方向，默认（Direction::Up）是从更早的消息中搜索
+   * @return BMXErrorCode
+   **/
+  virtual BMXErrorCode searchMessagesByType(BMXMessage::ContentType type, int64_t refTime, size_t size, BMXMessageList& result, Direction = Direction::Up) = 0;
+
+  /**
+   * Deprecated. use searchMessagesByType instead.
    * @brief 按照类型搜索消息，如果不指定则从最新消息开始
    * @param type 搜索消息的类型
    * @param refTime 搜索消息的起始时间

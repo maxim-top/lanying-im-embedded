@@ -33,6 +33,8 @@ class BMXRosterService;
 class BMXGroupService;
 class BMXChatService;
 class BMXUserService;
+class BMXPushService;
+class BMXRTCService;
 
 /**
  * @brief 客户端
@@ -82,15 +84,25 @@ public:
   virtual BMXRosterService& getRosterService() = 0;
 
   /**
-   * @brief 注册新用户，mobile、verifyCode和password是必填参数
-   * @param mobile 电话号码
-   * @param verifyCode 验证码
-   * @param password 用户密码
+   * @brief 获取推送Service
+   * @return BMXPushService
+   **/
+  virtual BMXPushService& getPushService() = 0;
+
+  /**
+   * @brief 获取BMXRTCService对象
+   * @return BMXRTCService
+   **/
+  virtual BMXRTCService& getRTCService() = 0;
+
+  /**
+   * @brief 注册新用户，username和password是必填参数
    * @param username 用户名
+   * @param password 用户密码
    * @param bmxUserProfilePtr 注册成功后从该函数处获取新注册用户的Profile信息，初始传入指向为空的shared_ptr对象即可。
    * @return BMXErrorCode
    **/
-  virtual BMXErrorCode signUpNewUser(const std::string& mobile, const std::string& verifyCode, const std::string& password, const std::string& username, BMXUserProfilePtr& bmxUserProfilePtr) = 0;
+  virtual BMXErrorCode signUpNewUser(const std::string& username, const std::string& password, BMXUserProfilePtr& bmxUserProfilePtr) = 0;
   
   /**
    * @brief 通过用户名登录
@@ -99,15 +111,7 @@ public:
    * @return BMXErrorCode
    **/
   virtual BMXErrorCode signInByName(const std::string& name, const std::string& password) = 0;
-
-  /**
-   * @brief 通过手机号登录
-   * @param phone 电话号码
-   * @param password 用户密码
-   * @return BMXErrorCode
-   **/
-  virtual BMXErrorCode signInByPhone(const std::string& phone, const std::string& password) = 0;
-
+  
   /**
    * @brief 通过用户ID登录
    * @param int64_t 用户id
@@ -123,14 +127,6 @@ public:
    * @return BMXErrorCode
    **/
   virtual BMXErrorCode fastSignInByName(const std::string& name, const std::string& password) = 0;
-  
-  /**
-   * @brief 通过电话号码快速登录（要求之前成功登录过，登录速度较快）
-   * @param phone 电话号码
-   * @param password 用户密码(用于sdk在内部token到期时自动更新用户token)
-   * @return BMXErrorCode
-   **/
-  virtual BMXErrorCode fastSignInByPhone(const std::string& phone, const std::string& password) = 0;
 
   /**
    * @brief 通过用户ID快速登录（要求之前成功登录过，登录速度较快）
@@ -142,9 +138,11 @@ public:
 
   /**
    * @brief 退出登录
+   * @param uid 退出用户的uid（默认输入0则退出当前登陆用户）
+   * @param ignoreUnbindDevice 用户退出时是否忽略解绑定设备操作。对应某些服务器不可访问的情况下忽略服务器解绑定设备操作直接强制退出时设置为true
    * @return BMXErrorCode
    **/
-  virtual BMXErrorCode signOut() = 0;
+  virtual BMXErrorCode signOut(int64_t uid = 0, bool ignoreUnbindDevice = false) = 0;
 
   /**
    * @brief 获取当前和服务器的连接状态
@@ -178,14 +176,16 @@ public:
   /**
    * @brief 更改SDK的appId，本操作会同时更新BMXConfig中的appId。
    * @param appId 新变更的appId
+   * @return BMXErrorCode
    **/
-  virtual void changeAppId(const std::string& appId) = 0;
+  virtual BMXErrorCode changeAppId(const std::string& appId, const std::string& appSecret = "") = 0;
 
   /**
    * @brief 获取app的服务器网络配置，在初始化SDK之后登陆之前调用，可以提前获取服务器配置加快登陆速度。
    * @param isLocal 为true则使用本地缓存的dns配置，为false则从服务器获取最新的配置。
+   * @return BMXErrorCode
    **/
-  virtual void initializeServerConfig(bool isLocal) = 0;
+  virtual BMXErrorCode initializeServerConfig(bool isLocal) = 0;
   
   /**
    * @brief 发送消息，消息状态变化会通过listener通知，在发送群组消息且指定的群组为开启群组已读回执的情况下，
